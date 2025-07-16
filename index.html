@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DSA Progress Tracker</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 20px;
+      background: #f9f9f9;
+      color: #333;
+      transition: background 0.3s, color 0.3s;
+    }
+    .dark-mode {
+      background: #121212;
+      color: #e0e0e0;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      transition: background 0.3s;
+    }
+    .dark-mode .container {
+      background: #1e1e1e;
+    }
+    h2, h3 {
+      text-align: center;
+    }
+    .topic {
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .dark-mode .topic {
+      border-bottom: 1px solid #333;
+    }
+    .task {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .task label {
+      flex: 1;
+      cursor: pointer;
+    }
+    .task input[type="number"] {
+      width: 60px;
+      padding: 3px;
+    }
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background-color: #ddd;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 5px;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background-color: #4caf50;
+      transition: width 0.3s ease-in-out;
+    }
+    .controls {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .toggle-btn {
+      background-color: #333;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .dark-mode .toggle-btn {
+      background-color: #e0e0e0;
+      color: #121212;
+    }
+    @media (max-width: 600px) {
+      .task {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="controls">
+    <button class="toggle-btn" onclick="toggleTheme()">Toggle Theme</button>
+  </div>
+  <div class="container">
+    <h2>DSA Progress Tracker</h2>
+    <h3 id="total-progress"></h3>
+    <div id="topics"></div>
+  </div>
+
+  <script>
+    const topics = [
+      "Step 1: Learn the basics",
+      "Step 2: Sorting Techniques",
+      "Step 3: Arrays",
+      "Step 4: Binary Search",
+      "Step 5: Strings Basic/Medium",
+      "Step 6: LinkedList",
+      "Step 7: Recursion",
+      "Step 8: Bit Manipulation",
+      "Step 9: Stack and Queues",
+      "Step 10: Sliding Window/Two Pointers",
+      "Step 11: Heaps",
+      "Step 12: Greedy Algorithms",
+      "Step 13: Binary Trees",
+      "Step 14: BST",
+      "Step 15: Graphs",
+      "Step 16: Dynamic Programming",
+      "Step 17: Tries",
+      "Step 18: Strings Advanced"
+    ];
+
+    const totals = [31, 7, 40, 32, 15, 31, 25, 18, 30, 12, 17, 16, 39, 16, 54, 56, 7, 9];
+
+    const topicsContainer = document.getElementById("topics");
+    let overallDone = 0, overallTotal = 0;
+
+    topics.forEach((topic, index) => {
+      const savedDone = localStorage.getItem(`done-${index}`);
+      const checked = localStorage.getItem(`check-${index}`) === 'true';
+      const done = savedDone !== null ? parseInt(savedDone) : 0;
+      const percent = Math.round((done / totals[index]) * 100);
+
+      overallDone += done;
+      overallTotal += totals[index];
+
+      topicsContainer.innerHTML += `
+        <div class="topic">
+          <div class="task">
+            <label><input type="checkbox" data-check="${index}" ${checked ? 'checked' : ''}> ${topic}</label>
+            <span>Done: <input type="number" min="0" max="${totals[index]}" value="${done}" data-input="${index}" /> / ${totals[index]}</span>
+          </div>
+          <div class="progress-bar"><div class="progress-bar-fill" style="width:${percent}%"></div></div>
+        </div>
+      `;
+    });
+
+    document.getElementById("total-progress").innerText = `Overall Progress: ${overallDone} / ${overallTotal} (${Math.round((overallDone / overallTotal) * 100)}%)`;
+
+    document.querySelectorAll("input[type='checkbox']").forEach((box) => {
+      box.addEventListener("change", (e) => {
+        const id = e.target.getAttribute("data-check");
+        localStorage.setItem(`check-${id}`, e.target.checked);
+      });
+    });
+
+    document.querySelectorAll("input[type='number']").forEach((input) => {
+      input.addEventListener("change", (e) => {
+        const id = e.target.getAttribute("data-input");
+        let value = parseInt(e.target.value);
+        if (value < 0) value = 0;
+        if (value > totals[id]) value = totals[id];
+        e.target.value = value;
+        localStorage.setItem(`done-${id}`, value);
+        location.reload();
+      });
+    });
+
+    function toggleTheme() {
+      document.body.classList.toggle("dark-mode");
+      const isDark = document.body.classList.contains("dark-mode");
+      localStorage.setItem("theme", isDark ? "dark" : "light");
+    }
+
+    window.onload = () => {
+      if (localStorage.getItem("theme") === "dark") {
+        document.body.classList.add("dark-mode");
+      }
+    }
+  </script>
+</body>
+</html>
